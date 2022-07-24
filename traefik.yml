@@ -1,0 +1,42 @@
+api:
+  insecure: false
+
+entrypoints:
+  web:
+    address: ":80"
+  websecurity:
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    watch: true
+  file:
+    filename: "traefik.yml"
+    watch: true
+
+http:
+  routers:
+    api:
+      rule: "Host(`traefik.localhost`)"
+      service: api@internal
+      middlewares:
+      - basic-auth
+    balancer:
+      rule: "Host(`balancer.localhost`) || Host(`www.localhost`)"
+      service: whoami  
+
+  middlewares:
+    basic-auth:
+      basicAuth:
+        users:
+          # Current: root:root (Remove this comment on prod)
+          - "root:$apr1$1kGQ8.wC$cfrIXE4XtaASRtnLDgi7N0"
+        removeHeader: true
+  
+  services:
+    whoami:
+      loadBalancer:
+        servers:
+        - url: "http://whoami1/"
+        - url: "http://whoami2/"      

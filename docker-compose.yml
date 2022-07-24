@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+
+  # Current latest traefik image
+  traefik:
+    image: traefik:v2.8
+    ports: 
+      - 80:80 
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml
+    networks:
+      traefik_network:
+  
+  # Tiny Go webserver that prints os information and HTTP request to output    
+  whoami1:
+    image: containous/whoami
+    container_name: whoami1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami1.rule=Host(`whoami1`) || Host(`www1.localhost`)"
+    networks:
+      traefik_network:
+  
+  # Second container of containous/whoami
+  whoami2:
+    image: containous/whoami
+    container_name: whoami2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami2.rule=Host(`whoami2`) || Host(`www2.localhost`)"
+    networks:
+      traefik_network:
+
+networks:
+  traefik_network:
+    name: traefik_net
+    driver: bridge
+    ipam:
+      driver: default
