@@ -69,7 +69,7 @@ curl http://www.localhost/
 curl http://balancer.localhost/
 ```
 
-5. You can also visit [http://traefik.localhost/](http://traefik.localhost/) to visit the dashbord and see what's going on. It will show you the current entrypoints, routers, services, middlewares and more. To connect to this dashboard, a user and a password will be needed. Use `root` as user and password for the first connection, but care to modify it for any real use.
+5. You can also go to [http://traefik.localhost/](http://traefik.localhost/) to visit the dashbord and see what's going on. It will show you the current entrypoints, routers, services, middlewares and more. To connect to this dashboard, a user and a password will be needed. Use `root` as user and password for the first connection, but care to modify it for any real use.
 ![Web UI Providers](https://raw.githubusercontent.com/traefik/traefik/v2.5/docs/content/assets/img/webui-dashboard.png)
 - Check out the [Customize](#customize) section to modify the files to suit your needs.
 
@@ -141,11 +141,16 @@ In order to add more whoami servers, each with a unique subdomain, please copy t
     container_name: whoami2
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami2.rule=Host(`www2.localhost`)"
+      - "traefik.http.routers.whoami2.rule=Host(`whoami2`) || Host(`www2.localhost`)"
     networks:
       traefik_network:
 ```
-Feel free to edit the comment on the first line at will. Replace the `whoami2` name for a unique service name. Next, replace also the container_name field, preferably with the service name. Then, replace also the "whoami2" on "traefik.http.routers.**whoami2**.rule" by the new service name on the second label. Lastly, don't forget to replace the Host for a unique url, and as before, mind the backticks(\`) around.
+ - Feel free to edit the comment on the first line at will. 
+ - Replace the `whoami2` name for a unique service name. 
+ - Next, replace also the container_name field, preferably with the service name. 
+ - Then, replace also the "whoami2" on "traefik.http.routers.**whoami2**.rule" by the new service name on the second label. The first host between backticks should have a unique and simple url, which will be visible only from inside the network: a good idea is to use the service name. 
+ - Add this new host also on traefik.yml on the services section, on the loadBalance server's urls. 
+ - Lastly, replace the second Host for a unique url which will be visible from the web interface, and as before, mind the backticks(\`) around.
 
 Once your changes are all done, [turn off](#turn-off) the app and [build](#build) it again.
 
